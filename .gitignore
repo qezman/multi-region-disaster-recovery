@@ -1,0 +1,28 @@
+# Terraform working directory (providers, modules cache)
+.terraform/
+
+# Local state and backups (may contain secrets)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfplan
+
+# Provider lock files (generated locally)
+.terraform.lock.hcl
+
+# Variable files with environment-specific values
+*.tfvars
+*.tfvars.json
+!example.tfvars
+!*.tfvars.example
+
+# Local secrets and unrelated project noise
+.env
+node_modules/
+docs/
