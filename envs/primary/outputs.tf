@@ -17,3 +17,7 @@ output "db_subnet_ids" {
   description = "List of db subnet IDs"
   value       = module.network.db_subnet_ids
 }
+
+output "db_subnet_group_name" {
+  value = module.network.db_subnet_group_name
+}

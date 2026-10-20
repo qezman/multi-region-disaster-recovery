@@ -17,3 +17,7 @@ output "db_subnet_ids" {
   description = "List of db subnet IDs"
   value       = [for s in aws_subnet.db : s.id]
 }
+
+output "db_subnet_group_name" {
+  value = aws_db_subnet_group.db.name
+}
