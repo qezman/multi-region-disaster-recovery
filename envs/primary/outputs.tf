@@ -21,3 +21,8 @@ output "db_subnet_ids" {
 output "db_subnet_group_name" {
   value = module.network.db_subnet_group_name
 }
+
+output "ecr_repository_url" {
+  description = "The URL of the ECR repository where the application image must be pushed"
+  value       = aws_ecr_repository.api.repository_url
+}
