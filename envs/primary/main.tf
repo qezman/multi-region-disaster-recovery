@@ -13,4 +13,6 @@ module "app-stack" {
   environment       = var.environment
   vpc_id            = module.network.vpc_id
   public_subnet_ids = module.network.public_subnet_ids
+  image             = "${aws_ecr_repository.api.repository_url}:v1"
+  region_name       = "eu-west-1"
 }

@@ -27,3 +27,13 @@ output "target_group_arn" {
   description = "The ARN identifying the routing target group"
   value       = aws_lb_target_group.api.arn
 }
+
+output "cluster_name" {
+  description = "The name of the created ECS Fargate cluster"
+  value = aws_ecs_cluster.api.name
+}
+
+output "service_name" {
+  description = "The name of the ECS application service"
+  value = aws_ecs_service.api.name
+}
