@@ -17,3 +17,10 @@ resource "aws_ecr_replication_configuration" "api" {
   }
 }
 
+resource "aws_route53_zone" "main" {
+  name    = var.domain_name
+  comment = "Delegated zone for the DR project"
+  lifecycle {
+    prevent_destroy = true
+  }
+}

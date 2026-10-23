@@ -13,3 +13,8 @@ variable "destination_region" {
   type        = string
   default     = "eu-central-1"
 }
+
+variable "domain_name" {
+  description = "Delegated subdomain, e.g. dr.example.com"
+  type        = string
+}
