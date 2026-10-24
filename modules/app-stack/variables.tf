@@ -38,3 +38,8 @@ variable "region_name" {
   description = "The target region passed down into the running application container"
   type        = string
 }
+
+variable "certificate_arn" {
+  description = "The ARN of the regional ACM SSL/TLS certificate to secure the HTTPS listener"
+  type        = string
+}

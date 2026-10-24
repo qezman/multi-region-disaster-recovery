@@ -122,7 +122,7 @@ resource "aws_ecs_service" "api" {
   }
 
   # Resolves a critical race condition: ensures the ALB listener is ready before containers try to register
-  depends_on = [aws_lb_listener.http]
+  depends_on = [aws_lb_listener.https]
 
   tags = {
     Name = "${var.project}-${var.environment}-service"

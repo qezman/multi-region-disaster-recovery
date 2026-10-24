@@ -18,3 +18,9 @@ variable "domain_name" {
   description = "Delegated subdomain, e.g. dr.example.com"
   type        = string
 }
+
+variable "zone_name" {
+  description = "Parent zone name, e.g. example.com"
+  type        = string
+  default = "qossim005.online"
+}

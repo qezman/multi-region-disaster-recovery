@@ -4,6 +4,6 @@ output "vpc_id" {
 }
 
 output "alb_dns_name" {
-  description = "The active URL route pointing to the secondary regional public facing load balancer"
+  description = "Public DNS name of the secondary ALB"
   value       = module.app_stack.alb_dns_name
 }

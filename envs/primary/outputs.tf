@@ -26,3 +26,8 @@ output "ecr_repository_url" {
   description = "The URL of the ECR repository where the application image must be pushed"
   value       = aws_ecr_repository.api.repository_url
 }
+
+output "alb_dns_name" {
+  description = "Public DNS name of the primary ALB"
+  value       = module.app-stack.alb_dns_name
+}

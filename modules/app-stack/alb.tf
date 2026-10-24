@@ -114,15 +114,43 @@ resource "aws_lb_target_group" "api" {
   }
 }
 
-# This listens constantly on port 80 and immediately hands 
-#off incoming traffic to backend application target group.
+# catches unencrypted HTTP web traffic on port 80 and forces a secure 301 redirect over to HTTPS
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.api.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
+    type = "redirect"
+
+  redirect {
+    port = "443"
+    protocol = "HTTPS"
+    status_code = "HTTP_301"
+  }
+  }
+}
+
+# hosts the secure SSL/TLS gateway on port 443
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.api.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = var.certificate_arn
+
+  default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.api.arn
   }
+}
+
+# adjusts the public-facing firewall rules to allow secure HTTPS
+resource "aws_vpc_security_group_ingress_rule" "alb_https" {
+  description       = "Allow public Internet traffic over HTTPS"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+  security_group_id = aws_security_group.alb.id
 }

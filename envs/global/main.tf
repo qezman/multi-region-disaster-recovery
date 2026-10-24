@@ -21,6 +21,19 @@ resource "aws_route53_zone" "main" {
   name    = var.domain_name
   comment = "Delegated zone for the DR project"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
+}
+
+data "aws_route53_zone" "root" {
+  name         = var.zone_name
+  private_zone = false 
+}
+
+resource "aws_route53_record" "dr_delegation" {
+  zone_id = data.aws_route53_zone.root.id
+  name    = var.domain_name
+  type    = "NS"
+  ttl     = 300
+  records = aws_route53_zone.main.name_servers
 }
