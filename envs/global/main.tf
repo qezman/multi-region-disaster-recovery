@@ -21,13 +21,13 @@ resource "aws_route53_zone" "main" {
   name    = var.domain_name
   comment = "Delegated zone for the DR project"
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
 
 data "aws_route53_zone" "root" {
   name         = var.zone_name
-  private_zone = false 
+  private_zone = false
 }
 
 resource "aws_route53_record" "dr_delegation" {

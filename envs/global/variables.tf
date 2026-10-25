@@ -22,5 +22,5 @@ variable "domain_name" {
 variable "zone_name" {
   description = "Parent zone name, e.g. example.com"
   type        = string
-  default = "qossim005.online"
+  default     = "qossim005.online"
 }

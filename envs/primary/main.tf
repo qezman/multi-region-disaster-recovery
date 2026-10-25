@@ -26,5 +26,6 @@ module "app-stack" {
   public_subnet_ids = module.network.public_subnet_ids
   image             = "${aws_ecr_repository.api.repository_url}:v1"
   region_name       = "eu-west-1"
+  desired_count   = 1
   certificate_arn   = data.terraform_remote_state.global.outputs.certificate_arn_primary
 }

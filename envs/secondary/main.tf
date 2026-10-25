@@ -18,7 +18,7 @@ module "network" {
   availability_zones = var.availability_zones
 }
 
-module "app_stack" {
+module "app-stack" {
   source = "../../modules/app-stack"
 
   project           = var.project

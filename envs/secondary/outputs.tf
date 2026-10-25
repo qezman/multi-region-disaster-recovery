@@ -5,5 +5,10 @@ output "vpc_id" {
 
 output "alb_dns_name" {
   description = "Public DNS name of the secondary ALB"
-  value       = module.app_stack.alb_dns_name
+  value       = module.app-stack.alb_dns_name
+}
+
+output "alb_zone_id" {
+  description = "The zone ID of the secondary ALB"
+  value       = module.app-stack.alb_zone_id
 }
