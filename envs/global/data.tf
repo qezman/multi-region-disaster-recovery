@@ -1,3 +1,4 @@
+# reads the primary region's outputs from its tf state
 data "terraform_remote_state" "primary" {
   backend = "s3"
   config = {
@@ -7,6 +8,7 @@ data "terraform_remote_state" "primary" {
   }
 }
 
+# reads the secondary region's outputs from its tf state
 data "terraform_remote_state" "secondary" {
   backend = "s3"
   config = {
