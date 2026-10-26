@@ -32,3 +32,9 @@ module "app-stack" {
   desired_count   = 1
   certificate_arn = data.terraform_remote_state.global.outputs.certificate_arn_secondary
 }
+
+module "database" {
+  source      = "../../modules/database"
+  project     = var.project
+  environment = var.environment
+}
