@@ -36,3 +36,15 @@ output "alb_zone_id" {
   description = "The zone ID of the primary ALB"
   value       = module.app-stack.alb_zone_id
 }
+
+output "db_arn" {
+  value = module.database.db_arn
+}
+
+output "db_endpoint" {
+  value = module.database.db_endpoint
+}
+
+output "db_master_secret_arn" {
+  value = module.database.master_user_secret_arn
+}

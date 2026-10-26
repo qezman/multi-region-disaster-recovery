@@ -1,5 +1,7 @@
+# retrieves the AWS account ID
 data "aws_caller_identity" "current" {}
 
+# loads shared global infrastructure outputs from Terraform state
 data "terraform_remote_state" "global" {
   backend = "s3"
   config = {
@@ -9,7 +11,7 @@ data "terraform_remote_state" "global" {
   }
 }
 
-# primary-region VPC, subnets, and routing from the shared network module
+# creates the primary-region VPC, subnets, and routing
 module "network" {
   source             = "../../modules/network"
   project            = var.project
@@ -18,6 +20,7 @@ module "network" {
   availability_zones = var.availability_zones
 }
 
+# deploys the primary-region application stack
 module "app-stack" {
   source            = "../../modules/app-stack"
   project           = var.project
@@ -26,6 +29,16 @@ module "app-stack" {
   public_subnet_ids = module.network.public_subnet_ids
   image             = "${aws_ecr_repository.api.repository_url}:v1"
   region_name       = "eu-west-1"
-  desired_count   = 1
+  desired_count     = 1
   certificate_arn   = data.terraform_remote_state.global.outputs.certificate_arn_primary
+}
+
+# deploys the primary-region database
+module "database" {
+  source                 = "../../modules/database"
+  project                = var.project
+  environment            = var.environment
+  vpc_id                 = module.network.vpc_id
+  db_subnet_group_name   = module.network.db_subnet_group_name
+  task_security_group_id = module.app-stack.task_security_group_id
 }
