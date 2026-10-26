@@ -25,4 +25,3 @@ override.tf.json
 # Local secrets and unrelated project noise
 .env
 node_modules/
-docs/

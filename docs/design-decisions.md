@@ -1,0 +1,42 @@
+• State Management: Bootstrap-managed S3 bucket (versioned, encrypted, no public access) using native S3 locking (use_lockfile, no DynamoDB). Located in primary region; primary outage blocks terraform apply (known limitation, mitigated by bucket replication).
+• Networking: Public subnets route directly to IGW (no NAT). ECS tasks use public IPs and restrict ingress to the ALB security group. ALBs restrict egress to the container port on tasks. Database subnets have no internet routes.
+• ECR Dependency: ECR lives in primary root. Running terraform destroy empties it. To recover, you must run -target on the repo and push the image before running the main ECS apply.
+
+## Disaster Recovery Drills (App Tier)
+
+**Method:** Primary ECS service scaled to 0 with `scripts/simulate-failure.sh fail`. Observed from AWS CloudShell (clean resolver), polling `https://dr.qossim005.online/health` every 2s. Route 53 failover records: 30s HTTPS health check (failure threshold 3) plus `evaluate_target_health` on the alias. All times UTC.
+
+### Drill 2 (recorded)
+
+| Event | Time (UTC) | Elapsed |
+|---|---|---|
+| T0: failure injected | 10:54:49 | n/a |
+| Last `eu-west-1` response | 10:55:05 | +16s |
+| First failed request | 10:55:07 | +18s |
+| First `eu-central-1` response | 10:55:39 | **+50s** |
+| Restore started | 10:55:57 | n/a |
+| First `eu-west-1` response (failback) | 10:56:39 | +42s |
+
+- **Failover time (RTO, app tier):** 50s from injection.
+- **User-visible outage:** ~32s of failed requests (10:55:07 to 10:55:36).
+- **Failback:** 42s with no failed requests.
+
+### Drill 1 vs Drill 2
+
+| Metric | Drill 1 | Drill 2 |
+|---|---|---|
+| Failover | ~90s | 50s |
+| Failback | ~2m 14s | 42s |
+
+The runs differ, so I report both and treat RTO as a range of 50 to 90s for the app tier.
+
+### Observations
+- Failed requests during the flip were 503s from the primary ALB, whose target group was empty.
+- Failover (50s) was faster than three failed 30s health checks would allow. Likely cause: `evaluate_target_health` on the alias marks the primary unhealthy as soon as its target group is empty. Not yet verified.
+- At the start of Drill 2, `eu-central-1` answers appear because primary was still recovering from the previous restore. Failure was injected after it stabilised.
+
+### Caveats
+- App tier only. No database yet, so no promotion step. RTO will grow once there is one.
+- Clients behind caching resolvers can add up to ~60s (alias TTL).
+- Local WSL DNS gave inconsistent answers, so only CloudShell results are used.
+- RPO not measured (no data layer yet).
