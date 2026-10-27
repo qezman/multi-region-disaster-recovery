@@ -44,7 +44,3 @@ output "db_arn" {
 output "db_endpoint" {
   value = module.database.db_endpoint
 }
-
-output "db_master_secret_arn" {
-  value = module.database.master_user_secret_arn
-}

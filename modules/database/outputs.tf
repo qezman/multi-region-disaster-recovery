@@ -18,13 +18,11 @@ output "db_endpoint" {
   value       = aws_db_instance.this.endpoint
 }
 
-output "db_security_group_id" {
-  description = "The ID of the security group for the RDS instance"
-  value       = aws_security_group.db.id
-}
-
-output "master_user_secret_arn" {
-  description = "The ARN of the Secrets Manager secret for the master user"
- # safely returns null if the attribute doesn't exist on a replica
-  value       = try(aws_db_instance.this.master_user_secret[0].secret_arn, null)
+output "db_password" {
+  description = "The generated database password"
+  value = try(
+    random_password.db[0].result,
+    null
+  )
+  sensitive = true
 }

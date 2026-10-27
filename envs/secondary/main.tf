@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 data "terraform_remote_state" "global" {
@@ -41,4 +54,5 @@ module "database" {
   vpc_id                 = module.network.vpc_id
   db_subnet_group_name   = module.network.db_subnet_group_name
   task_security_group_id = module.app-stack.task_security_group_id
+  replicate_source_arn   = data.terraform_remote_state.primary.outputs.db_arn
 }
