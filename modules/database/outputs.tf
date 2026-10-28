@@ -26,3 +26,8 @@ output "db_password" {
   )
   sensitive = true
 }
+
+output "db_address" {
+  description = "The address of the RDS instance"
+  value       = aws_db_instance.this.address
+}
