@@ -43,3 +43,19 @@ variable "certificate_arn" {
   description = "The ARN of the regional ACM SSL/TLS certificate to secure the HTTPS listener"
   type        = string
 }
+
+variable "database_secret_arn" {
+  description = "The ARN of the secret in Secrets Manager containing the database credentials"
+  type        = string
+}
+
+variable "secret_kms_key_arn" {
+  description = "The ARN of the KMS key used to encrypt the database secret"
+  type        = string
+}
+
+variable "enable_database_secret" {
+  description = "Whether to enable the database secret"
+  type        = bool
+  default     = false
+}

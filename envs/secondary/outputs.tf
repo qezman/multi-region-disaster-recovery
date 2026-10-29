@@ -20,3 +20,8 @@ output "db_arn" {
 output "db_endpoint" {
   value = module.database.db_endpoint
 }
+
+output "kms_key_arn" {
+  description = "The ARN of the KMS key used for RDS encryption in secondary region"
+  value       = module.database.kms_key_arn
+}

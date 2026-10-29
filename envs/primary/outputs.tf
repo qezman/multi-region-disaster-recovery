@@ -44,3 +44,8 @@ output "db_arn" {
 output "db_endpoint" {
   value = module.database.db_endpoint
 }
+
+output "secret_arn" {
+  description = "The ARN of the primary Secrets Manager secret"
+  value       = aws_secretsmanager_secret.db.arn
+}

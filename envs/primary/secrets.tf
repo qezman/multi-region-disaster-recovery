@@ -12,11 +12,11 @@ resource "aws_secretsmanager_secret" "db" {
 resource "aws_secretsmanager_secret_version" "db" {
   secret_id = aws_secretsmanager_secret.db.id
   secret_string = jsonencode({
-    username = var.db_username
+    username = "dbadmin"
     password = module.database.db_password
     host     = module.database.db_endpoint
     port     = 5432
-    dbname   = var.db_name
-    url      = "postgres://${var.db_username}:${module.database.db_password}@${module.database.db_endpoint}/transfers"
+    dbname   = "transfers"
+    url      = "postgres://dbadmin:${module.database.db_password}@${module.database.db_endpoint}/transfers"
   })
 }

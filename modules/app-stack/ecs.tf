@@ -20,34 +20,6 @@ resource "aws_ecs_cluster" "api" {
   }
 }
 
-# provisions the background IAM role that AWS uses to pull Docker images from ECR and stream logs to CloudWatch.
-resource "aws_iam_role" "execution" {
-  name = "${var.project}-${var.environment}-ecs-execution-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.project}-${var.environment}-ecs-execution-role"
-  }
-}
-
-# securely fastens the AWS-managed execution policy directly onto the worker role
-resource "aws_iam_role_policy_attachment" "execution" {
-  role       = aws_iam_role.execution.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
 # This defines the app's structural blueprint, specifying computing limits, operating systems, and target image locations
 resource "aws_ecs_task_definition" "api" {
   family                   = "${var.project}-${var.environment}-task"
@@ -82,6 +54,14 @@ resource "aws_ecs_task_definition" "api" {
           value = var.region_name
         }
       ]
+
+       # Conditional Secrets Payload
+       secrets = var.enable_database_secret ? [
+        {
+          name      = "DATABASE_SECRET"
+          valueFrom = "${var.database_secret_arn}:url::"
+        }
+      ] : []
 
       logConfiguration = {
         logDriver = "awslogs"
@@ -121,8 +101,11 @@ resource "aws_ecs_service" "api" {
     container_port   = var.container_port
   }
 
-  # Resolves a critical race condition: ensures the ALB listener is ready before containers try to register
-  depends_on = [aws_lb_listener.https]
+  # Handles both the ALB setup race condition and the IAM secret permissions
+  depends_on = [
+    aws_lb_listener.https, 
+    aws_iam_role_policy.read_database_secret
+]
 
   tags = {
     Name = "${var.project}-${var.environment}-service"
