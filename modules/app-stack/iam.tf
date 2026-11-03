@@ -1,4 +1,4 @@
-# provisions the background IAM role that AWS uses to pull Docker images from ECR and stream logs to CloudWatch.
+# provisions the background IAM role that AWS uses to pull Docker images from ECR and stream logs to CloudWatch
 resource "aws_iam_role" "execution" {
   name = "${var.project}-${var.environment}-ecs-execution-role"
 
@@ -20,7 +20,7 @@ resource "aws_iam_role" "execution" {
   }
 }
 
-# securely fastens the AWS-managed execution policy directly onto the worker role
+# AWS-managed policy: ECR pull and CloudWatch logs
 resource "aws_iam_role_policy_attachment" "execution" {
   role       = aws_iam_role.execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
@@ -38,7 +38,7 @@ resource "aws_iam_role_policy" "read_database_secret" {
       {
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
-        Resource = var.database_secret_arn
+        Resource = var.database_secret_arn # exact secret, full ARN passed in by the env
       },
       {
         Effect   = "Allow"

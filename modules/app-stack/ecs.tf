@@ -58,7 +58,7 @@ resource "aws_ecs_task_definition" "api" {
        # Conditional Secrets Payload
        secrets = var.enable_database_secret ? [
         {
-          name      = "DATABASE_SECRET"
+          name      = "DATABASE_URL"
           valueFrom = "${var.database_secret_arn}:url::"
         }
       ] : []
@@ -73,6 +73,14 @@ resource "aws_ecs_task_definition" "api" {
       }
     }
   ])
+
+  # fail at plan time if the env forgets to pass the secret
+  lifecycle {
+    precondition {
+      condition     = !var.enable_database_secret || var.database_secret_arn != null
+      error_message = "enable_database_secret is true but database_secret_arn is not set. Pass the secret's full ARN from the env."
+    }
+  }
 
   tags = {
     Name = "${var.project}-${var.environment}-task"
