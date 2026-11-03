@@ -11,10 +11,6 @@ terraform {
   }
 }
 
-data "aws_secretsmanager_secret" "db" {
-  name = "dr-project/database-url"
-}
-
 data "aws_caller_identity" "current" {}
 
 data "terraform_remote_state" "global" {
@@ -49,8 +45,8 @@ module "app-stack" {
   desired_count   = 1
   certificate_arn = data.terraform_remote_state.global.outputs.certificate_arn_secondary
 
-  # database_secret_arn    = data.aws_secretsmanager_secret.db.arn
-  database_secret_arn    = "arn:aws:secretsmanager:eu-central-1:722965867897:secret:dr-project/database-url"
+  # own secret (secrets.tf), encrypted with this region's DB key
+  database_secret_arn    = aws_secretsmanager_secret.db.arn
   secret_kms_key_arn     = module.database.kms_key_arn
   enable_database_secret = true
 }

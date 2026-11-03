@@ -49,3 +49,9 @@ output "secret_arn" {
   description = "The ARN of the primary Secrets Manager secret"
   value       = aws_secretsmanager_secret.db.arn
 }
+
+output "db_password" {
+  description = "Master password of the primary database"
+  value       = module.database.db_password
+  sensitive   = true
+}

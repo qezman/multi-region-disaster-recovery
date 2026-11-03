@@ -24,15 +24,6 @@ data "terraform_remote_state" "global" {
   }
 }
 
-data "terraform_remote_state" "secondary" {
-  backend = "s3"
-  config = {
-    bucket = "dr-project-tfstate-${data.aws_caller_identity.current.account_id}"
-    key    = "secondary/terraform.tfstate"
-    region = "eu-west-1"
-  }
-}
-
 # creates the primary-region VPC, subnets, and routing
 module "network" {
   source             = "../../modules/network"
