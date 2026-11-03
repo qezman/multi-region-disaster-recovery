@@ -1,0 +1,25 @@
+# local stack for the API: run from project-a with `docker compose up --build -d`
+services:
+  postgres:
+    image: postgres:16-alpine # same major version as RDS
+    environment:
+      POSTGRES_USER: dbadmin
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: transfers
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dbadmin -d transfers"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: ./app
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_URL: postgres://dbadmin:localdev@postgres:5432/transfers
+      AWS_REGION_NAME: local
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
