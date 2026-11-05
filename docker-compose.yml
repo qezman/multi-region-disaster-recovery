@@ -2,6 +2,8 @@
 services:
   postgres:
     image: postgres:16-alpine # same major version as RDS
+    ports:
+      - "5433:5432" # host port 5433, so it never clashes with a local Postgres
     environment:
       POSTGRES_USER: dbadmin
       POSTGRES_PASSWORD: localdev
