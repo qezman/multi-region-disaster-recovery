@@ -22,3 +22,8 @@ variable "availability_zones" {
   description = "List of availability zones to deploy subnets into"
   type        = list(string)
 }
+
+variable "image_tag" {
+  description = "API image to run, set by scripts/deploy.sh"
+  type = string
+}
