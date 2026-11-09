@@ -15,12 +15,12 @@ REGION="eu-west-1"
 if [ "$ACTION" == "fail" ]; then
     echo "Scaling down primary service to 0..."
     aws ecs update-service --cluster "$CLUSTER" --service "$SERVICE" --desired-count 0 --region "$REGION" > /dev/null
-    echo "T0 (Failure Started): $(date +%T)"
+    echo "T0 (Failure Started): $(date -u +%T)"
 
 elif [ "$ACTION" == "restore" ]; then
     echo "Scaling primary service back up to 1..."
     aws ecs update-service --cluster "$CLUSTER" --service "$SERVICE" --desired-count 1 --region "$REGION" > /dev/null
-    echo "T_restore (Recovery Started): $(date +%T)"
+    echo "T_restore (Recovery Started): $(date -u +%T)"
 
 else
     echo "Error: Invalid argument '$ACTION'"
