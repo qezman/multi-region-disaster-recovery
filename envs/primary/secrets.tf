@@ -14,6 +14,6 @@ resource "aws_secretsmanager_secret_version" "db" {
     host     = module.database.db_address # hostname only; db_endpoint is host:port
     port     = 5432
     dbname   = "transfers"
-    url      = "postgres://dbadmin:${module.database.db_password}@${module.database.db_endpoint}/transfers"
+    url      = "postgres://dbadmin:${module.database.db_password}@${module.database.db_endpoint}/transfers?sslmode=verify-full" # Bridge's image ships the RDS CA
   })
 }

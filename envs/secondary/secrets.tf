@@ -19,7 +19,7 @@ resource "aws_secretsmanager_secret_version" "db" {
     host     = module.database.db_address # this region's replica, not primary
     port     = 5432
     dbname   = "transfers"
-    url      = "postgres://dbadmin:${local.db_password}@${module.database.db_endpoint}/transfers"
+    url      = "postgres://dbadmin:${local.db_password}@${module.database.db_endpoint}/transfers?sslmode=verify-full" # Bridge's image ships the RDS CA
   })
 
   lifecycle {
