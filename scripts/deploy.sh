@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 
-# build the API image and apply primary, secondary and global
+# build Bridge (API and web app in one image) and apply primary, secondary and global
 set -euo pipefail
-ROOT=$(cd "$(dirname "$0")/.." && pwd)
+ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
 export AWS_PROFILE=${AWS_PROFILE:-dr-project}
 REPO=dr-project-api
+# Bridge lives in its own repos, beside multi-region-disaster-recovery
+API_DIR=${API_DIR:-$ROOT/../../bridge-backend}
+WEB_DIR=${WEB_DIR:-$ROOT/../../bridge-frontend}
 
+# the tag is both repos' commits, so every image maps to exact code
 if [ -z "${TAG:-}" ]; then
-  if [ -n "$(git -C "$ROOT" -c core.fileMode=false -c core.autocrlf=input status --porcelain -- app)" ]; then
-    echo "app/ has uncommitted changes. Commit them first, or set a tag: TAG=v5 scripts/deploy.sh"
-    exit 1
-  fi
-  TAG=$(git -C "$ROOT" rev-parse --short HEAD)
+  for dir in "$API_DIR" "$WEB_DIR"; do
+    if [ -n "$(git -C "$dir" -c core.fileMode=false -c core.autocrlf=input status --porcelain)" ]; then
+      echo "$dir has uncommitted changes. Commit them first, or set a tag: TAG=v5 scripts/deploy.sh"
+      exit 1
+    fi
+  done
+  TAG=$(git -C "$API_DIR" rev-parse --short HEAD)-$(git -C "$WEB_DIR" rev-parse --short HEAD)
 fi
 echo "== deploying image tag $TAG to account $(aws sts get-caller-identity --query Account --output text)"
 
@@ -27,7 +33,7 @@ ECR_URL=$(terraform -chdir="$ROOT/envs/primary" output -raw ecr_repository_url)
 if [ -z "$(digest eu-west-1)" ]; then
   echo "== build and push $TAG"
   aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin "${ECR_URL%%/*}"
-  docker build --platform linux/amd64 -t "$ECR_URL:$TAG" "$ROOT/app"
+  docker buildx build --platform linux/amd64 --build-context web="$WEB_DIR" -t "$ECR_URL:$TAG" --load "$API_DIR"
   docker push "$ECR_URL:$TAG"
 else
   echo "== $TAG is already in ECR, skipping the build"

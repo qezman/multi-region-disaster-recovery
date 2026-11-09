@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# create the transfers table on primary's RDS with a one-off ECS task
+# run Bridge's migrations on primary's RDS with a one-off ECS task
 # the standby gets it through replication
 set -euo pipefail
 export AWS_PROFILE=${AWS_PROFILE:-dr-project}
@@ -13,7 +13,7 @@ NET=$(aws ecs describe-services --region $R --cluster $CLUSTER --services dr-pro
 
 TASK=$(aws ecs run-task --region $R --cluster $CLUSTER --launch-type FARGATE \
   --task-definition dr-project-primary-task --network-configuration "$NET" \
-  --overrides '{"containerOverrides":[{"name":"app","command":["node","migrate.js"]}]}' \
+  --overrides '{"containerOverrides":[{"name":"app","command":["node","scripts/migrate.ts"]}]}' \
   --query 'tasks[0].taskArn' --output text)
 
 echo "== migration task started, waiting for it to finish"

@@ -7,7 +7,7 @@ export AWS_PROFILE=${AWS_PROFILE:-dr-project}
 DOMAIN=https://dr.qossim005.online
 PRI=https://$(terraform -chdir="$ROOT/envs/primary" output -raw alb_dns_name)
 SEC=https://$(terraform -chdir="$ROOT/envs/secondary" output -raw alb_dns_name)
-BODY='{"amount":10000,"source_currency":"GBP","target_currency":"NGN","recipient":{"name":"A","bank":"B","account_number":"0123456789"}}'
+BODY='{"amount":10000,"source_currency":"GBP","target_currency":"NGN","recipient":{"name":"Ada Obi","bank":"GTBank","account_number":"0123456789"}}'
 FAILED=0
 pass() { echo "PASS  $1"; }
 fail() { echo "FAIL  $1 ($2)"; FAILED=1; }
@@ -20,11 +20,11 @@ for target in "primary $PRI eu-west-1" "secondary $SEC eu-central-1"; do
 done
 
 # 3. a write through the domain lands in primary
-out=$(curl -s -w '\n%{http_code}' -X POST "$DOMAIN/transfers" -H "Idempotency-Key: verify-$(date +%s)-$RANDOM" \
+out=$(curl -s -w '\n%{http_code}' -X POST "$DOMAIN/transfers" -H "Idempotency-Key: $(cat /proc/sys/kernel/random/uuid)" \
   -H 'Content-Type: application/json' -d "$BODY")
 code=$(echo "$out" | tail -n1)
 ID=$(echo "$out" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
-if [ "$code" = 201 ] && echo "$out" | grep -q '"region":"eu-west-1"'; then
+if [ "$code" = 201 ] && echo "$out" | grep -q '"served_by_region":"eu-west-1"'; then
   pass "POST via domain: 201 from eu-west-1"
 else
   fail "POST via domain" "$(echo "$out" | head -n1) [$code]"
@@ -34,17 +34,17 @@ fi
 out=""
 for _ in $(seq 1 10); do
   out=$(curl -sk "$SEC/transfers/$ID")
-  echo "$out" | grep -q '"created_in_region":"eu-west-1"' && break
+  echo "$out" | grep -q '"region":"eu-west-1"' && break
   sleep 2
 done
-if echo "$out" | grep -q '"created_in_region":"eu-west-1"' && echo "$out" | grep -q '"region":"eu-central-1"'; then
+if echo "$out" | grep -q '"region":"eu-west-1"' && echo "$out" | grep -q '"served_by_region":"eu-central-1"'; then
   pass "standby reads the new transfer (replication works)"
 else
   fail "standby read" "$out"
 fi
 
 # 5. the standby refuses writes
-code=$(curl -sk -o /dev/null -w '%{http_code}' -X POST "$SEC/transfers" -H "Idempotency-Key: verify-ro-$RANDOM" \
+code=$(curl -sk -o /dev/null -w '%{http_code}' -X POST "$SEC/transfers" -H "Idempotency-Key: $(cat /proc/sys/kernel/random/uuid)" \
   -H 'Content-Type: application/json' -d "$BODY")
 if [ "$code" = 503 ]; then pass "standby refuses writes: 503"; else fail "standby write" "got $code"; fi
 
