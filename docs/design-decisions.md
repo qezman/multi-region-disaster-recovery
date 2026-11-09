@@ -2,7 +2,7 @@
 
 - **State:** bootstrap-managed S3 bucket (versioned, encrypted, no public access) with native S3 locking (`use_lockfile`, no DynamoDB). It lives in the primary region, so a primary outage blocks `terraform apply`. Known limitation: replicating the bucket to the standby region would fix this, but it isn't set up yet.
 - **Networking:** public subnets route directly to the IGW (no NAT). ECS tasks use public IPs and only accept traffic from the ALB security group. ALBs can only send to the container port on tasks. Database subnets have no internet route.
-- **Images:** ECR lives in the primary root and replicates to eu-central-1. `scripts/deploy.sh` tags each image with the git commit and waits until eu-central-1 has the identical image before applying, so both regions always run the same build. Destroying primary deletes its repo, so the script recreates it and pushes before the main apply.
+- **Images:** ECR lives in the primary root and replicates to eu-central-1. `scripts/deploy.sh` builds Bridge (API and web app in one image) from its two repos, tags it with both commits, and waits until eu-central-1 has the identical image before applying, so both regions always run the same build. Destroying primary deletes its repo, so the script recreates it and pushes before the main apply.
 
 ## Database
 
@@ -12,7 +12,7 @@ The standby is a read replica, so it refuses writes. The API returns 503 `read_o
 
 `POST /transfers` is idempotent: `idempotency_key` is unique and the insert uses `ON CONFLICT DO NOTHING`, so concurrent retries create exactly one transfer.
 
-The API reaches RDS over TLS but doesn't verify the server certificate yet (`rejectUnauthorized: false` in `app/db.js`). Production would bundle the RDS CA and verify it.
+The API connects to RDS with `sslmode=verify-full`, and the image includes the RDS CA bundle, so the server's certificate and hostname are verified.
 
 ## Disaster recovery summary
 

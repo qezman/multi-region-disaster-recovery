@@ -2,6 +2,8 @@
 
 Everything runs from `project-a` in WSL. The scripts use the `dr-project` AWS profile by default.
 
+The app is Bridge, which lives in its own repos beside this one: `bridge-backend` (the API, which also serves the web app) and `bridge-frontend`. Test Bridge locally with the `docker compose` setup in `bridge-backend`, and commit both repos before deploying.
+
 ## Every session
 
 ```bash
@@ -23,8 +25,8 @@ Terraform asks you to type `yes` at every apply and destroy. Anything else cance
 
 | Script | What it does |
 |---|---|
-| `deploy.sh` | Tags the image with the current commit (`TAG=v5` to override), builds and pushes it unless it's already in ECR, waits until eu-central-1 has the identical image, then applies primary, secondary and global |
-| `migrate.sh` | Runs `migrate.js` as a one-off ECS task in primary. The standby gets the table through replication |
+| `deploy.sh` | Builds Bridge into one image, tagged with both repos' commits (`TAG=v5` to override), and pushes it unless it's already in ECR. It waits until eu-central-1 has the identical image, then applies primary, secondary and global |
+| `migrate.sh` | Runs Bridge's migrations (`scripts/migrate.ts`) as a one-off ECS task in primary. The standby gets the table through replication |
 | `verify.sh` | Health in both regions, a POST through the domain, the standby reading it back, the standby refusing writes, and both regions on the same image |
 | `teardown.sh` | Destroys secondary then primary, then checks for leftover databases and load balancers |
 
@@ -63,7 +65,7 @@ Expected leftovers: the eu-central-1 ECR repo (created by replication, not Terra
 | Symptom | Cause | Fix |
 |---|---|---|
 | `Apply cancelled` | the prompt got something other than `yes` | rerun the script; finished steps are skipped or show no changes |
-| `app/ has uncommitted changes` | the image tag is the commit, so `app/` must be committed | commit, or `TAG=v5 scripts/deploy.sh` |
+| `bridge-backend` or `bridge-frontend` `has uncommitted changes` | the image tag is both repos' commits, so both must be committed | commit, or `TAG=v5 scripts/deploy.sh` |
 | `eu-central-1 doesn't have the same ... image` | ECR replication missing or slow | make sure `envs/global` is applied, then rerun |
 | `UnknownError` with an empty `RequestID` | network blip or WSL clock drift | `sudo hwclock -s`, then rerun |
 | `Unsupported attribute` on `terraform_remote_state` | an env ran before the one it reads | follow the order above |
