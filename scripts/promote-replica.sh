@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # promote the secondary read replica to a standalone, writable database. One-way: there's no undo
 set -euo pipefail
-export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
+# GitHub Actions passes credentials directly; locally, use the dr-project profile
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
 R=eu-central-1
 DB=dr-project-secondary-db
 

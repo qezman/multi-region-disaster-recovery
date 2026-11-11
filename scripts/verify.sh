@@ -3,7 +3,10 @@
 # end-to-end checks across both regions. PASS/FAIL per check, non-zero exit if any fail
 set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
+# GitHub Actions passes credentials directly; locally, use the dr-project profile
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
 DOMAIN=https://dr.qossim005.online
 PRI=https://$(terraform -chdir="$ROOT/envs/primary" output -raw alb_dns_name)
 SEC=https://$(terraform -chdir="$ROOT/envs/secondary" output -raw alb_dns_name)

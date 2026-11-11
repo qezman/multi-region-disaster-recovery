@@ -3,8 +3,10 @@
 # build Bridge (API and web app in one image) and apply primary, secondary and global
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
-export AWS_PROFILE=${AWS_PROFILE:-dr-project}
-REPO=dr-project-api
+
+# GitHub Actions passes credentials directly; locally, use the dr-project profile
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}REPO=dr-project-api
+
 # Bridge lives in its own repos, beside multi-region-disaster-recovery
 API_DIR=${API_DIR:-$ROOT/../../bridge-backend}
 WEB_DIR=${WEB_DIR:-$ROOT/../../bridge-frontend}

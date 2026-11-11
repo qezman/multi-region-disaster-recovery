@@ -4,7 +4,9 @@
 # global (DNS, certs) and bootstrap (state bucket) stay up
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
+# GitHub Actions passes credentials directly; locally, use the dr-project profile
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}
 
 # image_tag has no default, but its value doesn't matter when destroying
 terraform -chdir="$ROOT/envs/secondary" destroy -var image_tag=teardown

@@ -3,7 +3,10 @@
 # run Bridge's migrations on primary's RDS with a one-off ECS task
 # the standby gets it through replication
 set -euo pipefail
-export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
+# GitHub Actions passes credentials directly; locally, use the dr-project profile
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
 R=eu-west-1
 CLUSTER=dr-project-primary-cluster
 
