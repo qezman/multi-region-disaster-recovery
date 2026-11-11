@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# GitHub Actions passes credentials directly; locally, use the dr-project profile
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
 # Check if an argument was provided
 if [ $# -ne 1 ]; then
     echo "Usage: $0 {fail|restore}"
