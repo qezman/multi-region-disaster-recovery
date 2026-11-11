@@ -59,6 +59,5 @@ module "database" {
   vpc_id                 = module.network.vpc_id
   db_subnet_group_name   = module.network.db_subnet_group_name
   task_security_group_id = module.app-stack.task_security_group_id
-  # replicate_source_arn   = data.terraform_remote_state.primary.outputs.db_arn
-  replicate_source_arn = "arn:aws:rds:eu-west-1:722965867897:db:dr-project-primary-db"
+  replicate_source_arn   = data.terraform_remote_state.primary.outputs.db_arn
 }
