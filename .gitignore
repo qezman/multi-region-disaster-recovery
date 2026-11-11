@@ -13,15 +13,6 @@ override.tf.json
 *_override.tf.json
 *.tfplan
 
-# Provider lock files (generated locally)
-.terraform.lock.hcl
-
-# Variable files with environment-specific values
-*.tfvars
-*.tfvars.json
-!example.tfvars
-!*.tfvars.example
-
 # Local secrets and unrelated project noise
 .env
 node_modules/
