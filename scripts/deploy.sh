@@ -5,7 +5,9 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd -P)
 
 # GitHub Actions passes credentials directly; locally, use the dr-project profile
-[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}REPO=dr-project-api
+[ -n "${CI:-}" ] || export AWS_PROFILE=${AWS_PROFILE:-dr-project}
+
+REPO=dr-project-api
 
 # Bridge lives in its own repos, beside multi-region-disaster-recovery
 API_DIR=${API_DIR:-$ROOT/../../bridge-backend}
