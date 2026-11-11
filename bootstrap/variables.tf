@@ -9,3 +9,9 @@ variable "project" {
   description = "prefix for resource names"
   default     = "dr-project"
 }
+
+variable "github_repo" {
+  description = "Repo allowed to deploy, as owner/name"
+  type        = string
+  default     = "qezman/multi-region-disaster-recovery"
+}
