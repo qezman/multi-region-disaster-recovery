@@ -18,7 +18,7 @@ provider "aws" {
     tags = {
       project = var.project
       env     = var.environment
-      region  = "eu-west-1"
+      region  = "eu-central-1"
     }
   }
 }
