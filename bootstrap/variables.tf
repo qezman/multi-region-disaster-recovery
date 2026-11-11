@@ -9,9 +9,3 @@ variable "project" {
   description = "prefix for resource names"
   default     = "dr-project"
 }
-
-variable "lock_table_state" {
-  description = "DynamoDB table name for Terraform state locking"
-  type        = string
-  default     = "dr-project-Terraform-locks"
-}
