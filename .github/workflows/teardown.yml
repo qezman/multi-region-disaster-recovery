@@ -1,0 +1,30 @@
+# Destroys both regions. global and the state bucket stay
+name: teardown
+
+on: workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  teardown:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      TF_CLI_ARGS_destroy: -auto-approve
+    steps:
+    - uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+        aws-region: eu-west-1
+
+    - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.5
+
+    - run: |
+          terraform -chdir=envs/primary init
+          terraform -chdir=envs/secondary init
+
+      - run: scripts/teardown.sh
