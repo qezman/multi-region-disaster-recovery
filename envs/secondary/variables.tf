@@ -25,5 +25,5 @@ variable "availability_zones" {
 
 variable "image_tag" {
   description = "API image to run, set by scripts/deploy.sh"
-  type = string
+  type        = string
 }
