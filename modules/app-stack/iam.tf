@@ -27,14 +27,14 @@ resource "aws_iam_role_policy_attachment" "execution" {
 }
 
 resource "aws_iam_role_policy" "read_database_secret" {
-    count = var.enable_database_secret ? 1 : 0
+  count = var.enable_database_secret ? 1 : 0
 
-    name = "${var.project}-${var.environment}-ecs-secret-read"
-    role = aws_iam_role.execution.id
+  name = "${var.project}-${var.environment}-ecs-secret-read"
+  role = aws_iam_role.execution.id
 
-    policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
       {
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
@@ -46,5 +46,5 @@ resource "aws_iam_role_policy" "read_database_secret" {
         Resource = var.secret_kms_key_arn
       }
     ]
-    })
+  })
 }

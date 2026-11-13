@@ -55,8 +55,8 @@ resource "aws_ecs_task_definition" "api" {
         }
       ]
 
-       # Conditional Secrets Payload
-       secrets = var.enable_database_secret ? [
+      # Conditional Secrets Payload
+      secrets = var.enable_database_secret ? [
         {
           name      = "DATABASE_URL"
           valueFrom = "${var.database_secret_arn}:url::"
@@ -111,9 +111,9 @@ resource "aws_ecs_service" "api" {
 
   # Handles both the ALB setup race condition and the IAM secret permissions
   depends_on = [
-    aws_lb_listener.https, 
+    aws_lb_listener.https,
     aws_iam_role_policy.read_database_secret
-]
+  ]
 
   tags = {
     Name = "${var.project}-${var.environment}-service"
