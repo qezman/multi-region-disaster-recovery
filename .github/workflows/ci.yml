@@ -1,0 +1,31 @@
+name: CI Validation & Linting
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  lint-scripts-and-workflows:
+    name: ShellCheck & Actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: shellcheck -S warning scripts/*.sh
+      - run: docker --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:latest -color 
+
+  terraform:
+    name: Terraform Format & Validate
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v5
+        - uses: hashicorp/setup-terraform@v4
+          with:
+            terraform_version: 1.15.5
+
+        - run: terraform fmt -check -recursive -diff
+        - run: |
+          for dir in bootstrap envs/primary envs/secondary envs/global; do
+            terraform -chdir="$dir" init -backend=false
+            terraform -chdir="$dir" validate
+          done
