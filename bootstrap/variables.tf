@@ -13,5 +13,5 @@ variable "project" {
 variable "github_repo" {
   description = "Repo allowed to deploy, as owner/name"
   type        = string
-  default     = "qezman/multi-region-disaster-recovery"
+  default     = "qezman@72203178/multi-region-disaster-recovery@1422128316"
 }
