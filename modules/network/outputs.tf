@@ -1,15 +1,15 @@
 output "vpc_id" {
-      description = "ID of the vpc"
-    value = aws_vpc.main.id
+  description = "ID of the vpc"
+  value       = aws_vpc.main.id
 }
 
 output "vpc_cidr" {
-      description = "CIDR block of the vpc"
-    value = aws_vpc.main.cidr_block
+  description = "CIDR block of the vpc"
+  value       = aws_vpc.main.cidr_block
 }
 
 output "public_subnet_ids" {
-      description = "List of public subnet IDs"
+  description = "List of public subnet IDs"
   value       = [for s in aws_subnet.public : s.id]
 }
 

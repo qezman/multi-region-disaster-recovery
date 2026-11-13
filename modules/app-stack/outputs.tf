@@ -30,10 +30,10 @@ output "target_group_arn" {
 
 output "cluster_name" {
   description = "The name of the created ECS Fargate cluster"
-  value = aws_ecs_cluster.api.name
+  value       = aws_ecs_cluster.api.name
 }
 
 output "service_name" {
   description = "The name of the ECS application service"
-  value = aws_ecs_service.api.name
+  value       = aws_ecs_service.api.name
 }

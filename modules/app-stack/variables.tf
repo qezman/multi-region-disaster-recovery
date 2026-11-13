@@ -47,7 +47,7 @@ variable "certificate_arn" {
 variable "database_secret_arn" {
   description = "The ARN of the secret in Secrets Manager containing the database credentials"
   type        = string
-  default = null
+  default     = null
 }
 
 variable "secret_kms_key_arn" {
