@@ -1,0 +1,55 @@
+name: deploy
+
+on: workflow_dispatch
+
+permissions:
+  id-token: write # lets the job sign in to AWS with OIDC
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production # waits for your approval
+    env:
+      TF_CLI_ARGS_apply: -auto-approve # nobody is needed to type yes
+      API_DIR: ${{ github.workspace }}/bridge-backend
+      WEB_DIR: ${{ github.workspace }}/bridge-frontend
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: infra
+
+      - uses: actions/checkout@v5
+        with:
+          repository: qezman/bridge-backend
+          token: ${{ secrets.BRIDGE_REPOS_TOKEN }}
+          path: bridge-backend
+
+      - uses: actions/checkout@v5
+        with:
+          repository: qezman/bridge-frontend
+          token: ${{ secrets.BRIDGE_REPOS_TOKEN }}
+          path: bridge-frontend
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-1
+          role-duration-seconds: 7200 # a fresh deploy can take over an hour
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.5
+          terraform_wrapper: false # keeps terraform output clean for the scripts
+
+      - run: |
+          terraform -chdir=envs/primary init
+          terraform -chdir=envs/secondary init
+          terraform -chdir=envs/global init
+
+      - run: scripts/deploy.sh
+      - run: scripts/migrate.sh
+      - run: scripts/verify.sh

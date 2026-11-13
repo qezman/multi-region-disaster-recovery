@@ -55,4 +55,9 @@ echo "== primary";   terraform -chdir="$ROOT/envs/primary"   apply -var "image_t
 echo "== secondary"; terraform -chdir="$ROOT/envs/secondary" apply -var "image_tag=$TAG"
 echo "== global";    terraform -chdir="$ROOT/envs/global"    apply
 
+# Terraform returns once ECS accepts the new task definition, not once the new task is serving
+echo "== waiting for both services to finish rolling out"
+aws ecs wait services-stable --region eu-west-1    --cluster dr-project-primary-cluster   --services dr-project-primary-service
+aws ecs wait services-stable --region eu-central-1 --cluster dr-project-secondary-cluster --services dr-project-secondary-service
+
 echo "deployed $TAG. Next: scripts/migrate.sh (after a fresh spin-up), then scripts/verify.sh"
