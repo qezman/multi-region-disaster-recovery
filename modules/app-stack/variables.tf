@@ -60,3 +60,8 @@ variable "enable_database_secret" {
   type        = bool
   default     = false
 }
+
+variable "datadog_secret_arn" {
+  description = "Datadog API key secret in this region"
+  type        = string
+}

@@ -14,6 +14,11 @@ terraform {
 # retrieves the AWS account ID
 data "aws_caller_identity" "current" {}
 
+#  created outside Terraform, so it survives teardown
+data "aws_secretsmanager" "datadog" {
+  name = "dr-project/datadog-api-key"
+}
+
 # loads shared global infrastructure outputs from Terraform state
 data "terraform_remote_state" "global" {
   backend = "s3"
@@ -47,6 +52,7 @@ module "app-stack" {
   database_secret_arn    = aws_secretsmanager_secret.db.arn
   secret_kms_key_arn     = module.database.kms_key_arn
   enable_database_secret = true
+  datadog_secret_arn     = data.aws_secretsmanager.datadog.arn
 }
 
 # deploys the primary-region database

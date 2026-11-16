@@ -38,7 +38,7 @@ resource "aws_iam_role_policy" "read_database_secret" {
       {
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
-        Resource = var.database_secret_arn # exact secret, full ARN passed in by the env
+        Resource = [var.database_secret_arn, var.datadog_secret_arn]
       },
       {
         Effect   = "Allow"
