@@ -25,8 +25,8 @@ resource "aws_ecs_task_definition" "api" {
   family                   = "${var.project}-${var.environment}-task"
   network_mode             = "awsvpc" #required for ECS fargate
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 512
+  memory                   = 1024
   execution_role_arn       = aws_iam_role.execution.arn
 
   runtime_platform {
@@ -69,6 +69,32 @@ resource "aws_ecs_task_definition" "api" {
           "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
           "awslogs-region"        = var.region_name
           "awslogs-stream-prefix" = "ecs"
+        }
+      }
+    },
+    {
+      name      = "datadog-agent"
+      image     = "public.ecr.aws/datadog/agent:7"
+      essential = false # if the agent fails, Bridge keeps serving
+
+      environment = [
+        { name = "ECS_FARGATE", value = "true" },
+        { name = "DD_SITE", value = "datadoghq.eu" },
+        { name = "DD_APM_ENABLED", value = "true" },
+        { name = "DD_ENV", value = "production" },
+        { name = "DD_TAGS", value = "region:${var.region_name}" },
+      ]
+
+      secrets = [
+        { name = "DD_API_KEY", valueFrom = var.datadog_secret_arn },
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs.name
+          "awslogs-region"        = var.region_name
+          "awslogs-stream-prefix" = "datadog"
         }
       }
     }

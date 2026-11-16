@@ -13,6 +13,11 @@ terraform {
 
 data "aws_caller_identity" "current" {}
 
+#  created outside Terraform, so it survives teardown
+data "aws_secretsmanager_secret" "datadog" {
+  name = "dr-project/datadog-api-key"
+}
+
 data "terraform_remote_state" "global" {
   backend = "s3"
   config = {
@@ -49,6 +54,7 @@ module "app-stack" {
   database_secret_arn    = aws_secretsmanager_secret.db.arn
   secret_kms_key_arn     = module.database.kms_key_arn
   enable_database_secret = true
+  datadog_secret_arn     = data.aws_secretsmanager_secret.datadog.arn
 }
 
 module "database" {
