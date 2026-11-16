@@ -14,7 +14,7 @@ terraform {
 data "aws_caller_identity" "current" {}
 
 #  created outside Terraform, so it survives teardown
-data "aws_secretsmanager" "datadog" {
+data "aws_secretsmanager_secret" "datadog" {
   name = "dr-project/datadog-api-key"
 }
 
