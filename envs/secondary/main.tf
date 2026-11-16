@@ -54,7 +54,7 @@ module "app-stack" {
   database_secret_arn    = aws_secretsmanager_secret.db.arn
   secret_kms_key_arn     = module.database.kms_key_arn
   enable_database_secret = true
-  datadog_secret_arn     = data.aws_secretsmanager.datadog.arn
+  datadog_secret_arn     = data.aws_secretsmanager_secret.datadog.arn
 }
 
 module "database" {
