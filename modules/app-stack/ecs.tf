@@ -49,10 +49,11 @@ resource "aws_ecs_task_definition" "api" {
       ]
 
       environment = [
-        {
-          name  = "AWS_REGION_NAME"
-          value = var.region_name
-        }
+        { name = "AWS_REGION_NAME", value = var.region_name },
+        { name = "DD_ENV", value = "production" },
+        { name = "DD_SERVICE", value = "bridge" },
+        { name = "DD_TAGS", value = "region:${var.region_name}" },
+        { name = "NODE_OPTIONS", value = "--import dd-trace/initialize.mjs" }, # starts APM
       ]
 
       # Conditional Secrets Payload
